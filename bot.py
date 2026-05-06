@@ -2,8 +2,15 @@ import os
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Use environment variables for security (set this in Render Dashboard)
-TOKEN = os.environ.get('8791708356:AAF5B2TGxkxZK7Os3zGUzX6KsVP9UY442jM')
+# This looks for 'BOT_TOKEN' in Render Environment Variables
+# If not found, it will print an error in your Render logs
+TOKEN = os.environ.get('BOT_TOKEN')
+
+if not TOKEN:
+    print("ERROR: BOT_TOKEN not found in Environment Variables!")
+else:
+    print("Token received. Initializing bot...")
+
 bot = telebot.TeleBot(TOKEN)
 
 # URL for your landing page
@@ -11,6 +18,7 @@ LANDING_PAGE_URL = "https://mglion.goaffnk.com/t/NV8y/"
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
+    print(f"User {message.chat.id} started the bot.")
     markup = InlineKeyboardMarkup()
     
     # Button 1: Educative (stays in bot)
@@ -40,8 +48,7 @@ def send_welcome(message):
 def show_about(call):
     educative_text = (
         "**What is MGLion?**\n\n"
-        "MGLion is a trusted platform for global sports markets and interactive gaming. "
-        "We offer:\n"
+        "MGLion is a trusted platform for global sports markets and interactive gaming.\n\n"
         "✅ Secure access to top-tier entertainment\n"
         "✅ 24/7 dedicated support\n"
         "✅ Real-time sports updates\n\n"
@@ -51,5 +58,8 @@ def show_about(call):
     bot.send_message(call.message.chat.id, educative_text, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    print("Bot is running...")
-    bot.infinity_polling()
+    print("Bot is successfully running and polling...")
+    try:
+        bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    except Exception as e:
+        print(f"Connection Error: {e}")
